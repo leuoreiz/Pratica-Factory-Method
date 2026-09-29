@@ -2,6 +2,8 @@
 
 Exercícios de estudo de padrões de projeto criacionais do catálogo GoF, feitos para a disciplina de Design Patterns.
 
+Resumo para consulta na prova: [COLA.md](COLA.md). Modelos em código com diagramas UML: [modelosProva/](modelosProva/).
+
 ## Padrões
 
 ### Factory Method

@@ -4,21 +4,54 @@
 
 ## Enunciado
 
-Uma loja online aceita pagamento por **Pix**, **Cartão de Crédito** e **Boleto**. Toda compra segue o mesmo processo:
+### Contexto de negócio
 
-1. **Validar** o valor. Se for menor ou igual a zero, a compra é recusada e o processo para.
-2. **Processar** o pagamento.
-3. **Imprimir o recibo** com o valor final.
+Uma loja online de eletrônicos concentra todo o pagamento em uma única classe que, por meio de um `switch`, decide como cobrar e qual taxa aplicar. Uma mudança recente na taxa do cartão quebrou o cálculo do boleto, e o time financeiro passou a exigir que cada forma de pagamento seja isolada. O comercial já negocia a entrada do **PayPal**.
 
-Cada forma de pagamento tem uma taxa diferente:
+### Especificação funcional
 
-| Pagamento | Taxa | Cálculo |
-|---|---|---|
-| Pix | 0% | `valor` |
-| Cartão | 5% | `valor * 1.05` |
-| Boleto | R$ 3,00 fixo | `valor + 3` |
+- **RF01 (Pix):** o pagamento é processado via Pix, sem taxa. Valor final = `valor`.
+- **RF02 (Cartão de crédito):** o pagamento é processado no cartão, com taxa de **5%**. Valor final = `valor × 1,05`.
+- **RF03 (Boleto):** o pagamento é processado por boleto, com tarifa fixa de **R$ 3,00**. Valor final = `valor + 3`.
+- **RF04:** toda compra segue o mesmo processo, qualquer que seja a forma de pagamento:
+  1. **validar** o valor: se for menor ou igual a zero, a compra é recusada, uma mensagem é exibida e o processo é encerrado;
+  2. **processar** o pagamento;
+  3. **imprimir o recibo** com o valor final já com a taxa.
 
-Deve ser possível adicionar **PayPal** sem alterar as classes existentes.
+### Requisitos não funcionais
+
+- **RNF01:** novas formas de pagamento devem poder ser adicionadas sem alteração de nenhuma classe existente.
+- **RNF02:** a regra de validação do valor deve existir em **um único lugar**, valendo para todas as formas de pagamento.
+
+### Tarefa
+
+Implemente o sistema usando o padrão **Factory Method** (GoF), com:
+
+- uma interface de produto (`MetodoPagamento`) com os métodos de processamento e de cálculo de taxa, e uma classe concreta por forma de pagamento;
+- uma classe abstrata criadora com o método fábrica abstrato e um método concreto que execute o RF04;
+- uma subclasse criadora por forma de pagamento;
+- uma classe cliente que processe uma compra em cada forma de pagamento.
+
+### Entregáveis
+
+- diagrama de classes UML;
+- código Java compilável, com um `main` que processe uma compra de R$ 50,00 em cada forma de pagamento.
+
+### Critérios de avaliação
+
+- validação e recibo centralizados na superclasse; taxa e processamento nos produtos;
+- implementação fiel das taxas de RF01 a RF03 e da recusa do RF04;
+- ausência de `if/switch` decidindo a forma de pagamento.
+
+### Leitura do enunciado
+
+| Trecho | Decisão no código |
+|---|---|
+| "um `switch` decide como cobrar" | trocar o `switch` por polimorfismo |
+| taxas diferentes (RF01 a RF03) | `aplicarTaxa(double valor)` na interface, uma fórmula em cada produto |
+| "validar ... encerrar o processo" (RF04) | `if (valor <= 0) { ...; return; }` no início de `ProcessarPagamento` |
+| "validação em um único lugar" (RNF02) | o `if` fica no Creator, nunca repetido nos produtos |
+| "entrada do PayPal" (RNF01) | `PayPal implements MetodoPagamento` + `ProcessarPayPal extends Processar` |
 
 ## Papéis
 
